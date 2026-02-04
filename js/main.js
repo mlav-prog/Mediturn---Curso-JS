@@ -1,166 +1,457 @@
-//arrays para los turnos médicos
-const nombresMedicos = [
-    "Dr. Pérez - Clínico", 
-    "Dra. Johnson - Pediatra", 
-    "Dr. Lee - Cardiólogo", 
-    "Dra. Brown - Dermatóloga",
-    "Dr. Fernández - Traumatólogo",
-    "Dra. Alvarez - Ginecóloga"
-];
+const STORAGE_KEY = "turnosPaciente";
 
-const horariosTurnos = [
-    "Lunes 9:00",
-    "Lunes 10:30",
-    "Martes 15:00",
-    "Miércoles 11:15",
-    "Jueves 17:30",
-    "Viernes 8:45",
-];
+const app = document.getElementById("app");
+const listaTurnos = document.getElementById("listaTurnos");
 
-//Storage
+let config = null;
+let medicos = [];
+let turnosPaciente = cargarTurnosPaciente();
 
-const storage_Key = "turnosReservados";
-let turnosReservados = cargarTurnosDesdeStorage();
+let medicoSeleccionadoId = null;
+let fechaSeleccionada = null;
+let horaSeleccionada = null;
 
-//Referencias al DOM
+// ===== Inicio =====
 
-const formTurno = document.getElementById("formTurno");
-const inputPaciente = document.getElementById("paciente");
-const selectMedico = document.getElementById("medico");
-const selectHorario = document.getElementById("horario");
-const divListaTurnos = document.getElementById("listaTurnos");
-const pMensaje = document.getElementById("mensaje");
+init();
 
-//Inicialización
+async function init() {
+    try {
+        const res = await fetch("./data/medicos.json");
+        if (!res.ok) throw new Error("No se pudo cargar medicos.json");
+        const data = await res.json();
 
-cargarOpciones();
-renderTurnos();
+        config = data.config;
+        medicos = data.medicos;
 
-//Eventos
-
-//Evento principal: reservar turnos desde el formulario
-formTurno.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    //entrada de datos desde el DOM
-    const paciente = inputPaciente.value.trim();
-    const medico = selectMedico.value;
-    const horario = selectHorario.value;
-
-    //validación básica
-    if (!paciente || !medico || !horario) {
-        mostrarMensaje("Completá los campos ⚠️", true);
-        return;
-    }
-
-    //Validación extra: evitar duplicar turnos reservados
-    const yaExiste = turnosReservados.some(t => t.medico === medico && t.horario === horario);
-    if (yaExiste) {
-        mostrarMensaje("Ese turno ya fue reservado. Elegí otro horario.", true);
-        return; 
-    }
-
-    //crear el objeto turno
-
-    const turno = {
-        id: crearId(),
-        paciente,
-        medico,
-        horario
-    };
-
-    // Proceso: actualizar estado y persistencia
-    turnosReservados.push(turno);
-    guardarTurnosEnStorage(turnosReservados);
-
-    // Salida: Renderizar en pantalla y mensaje de éxito
-    renderTurnos();
-    formTurno.reset();
-    mostrarMensaje("Turno reservado con éxito ✅");
-});
-
-// Evento secundario: eliminar turno
-divListaTurnos.addEventListener("click", (e) => {
-    const btn = e.target.closest("button[data-id]");
-    if (!btn) return;
-
-    const id = btn.getAttribute("data-id");
-
-    // Proceso: eliminar del array
-    turnosReservados = turnosReservados.filter(t => t.id !== id);
-    guardarTurnosEnStorage(turnosReservados);
-    
-    // Salida: Renderizar en pantalla y mensaje de éxito
-    renderTurnos();
-    mostrarMensaje("Turno eliminado 🗑️");
-});
-
-//Funciones
-
-function cargarOpciones() {
-
-    //Cargar opciones de médicos
-    selectMedico.innerHTML = `<option value="">Seleccione un profesional</option>`;
-    for (const medico of nombresMedicos) {
-        const option = document.createElement("option");
-        option.value = medico;
-        option.textContent = medico;
-        selectMedico.appendChild(option);
-    }
-    
-    //Cargar opciones de horarios
-    selectHorario.innerHTML = `<option value="">Seleccione un horario</option>`;
-    for (const horario of horariosTurnos) {
-        const option = document.createElement("option");
-        option.value = horario;
-        option.textContent = horario;
-        selectHorario.appendChild(option);
+        renderUI();
+        renderDoctorCard();
+        renderSemana();
+        renderTurnosPaciente();
+        actualizarBotonReservar();
+    } catch (err) {
+        Swal.fire("Error", "No se pudieron cargar los datos. Abrí con Live Server.", "error");
     }
 }
 
+// ===== UI =====
 
-function renderTurnos() {
-    // Si no hay turnos, mostrar mensaje
-    if (turnosReservados.length === 0) {
-        divListaTurnos.innerHTML = "<p>No hay turnos reservados.</p>";
+function renderUI() {
+    app.innerHTML = `
+    <section class="card grid">
+        <div class="row">
+            <label>
+                <strong>Paciente</strong><br>
+                <input id="paciente" type="text" placeholder="Nombre y Apellido" autocomplete="name" />
+            </label>
+
+            <label>
+                <strong>Profesional</strong><br>
+                <select id="medicoSelect">
+                    <option value="">Seleccione un médico</option>
+                    ${medicos.map(m => `<option value="${m.id}">${m.nombre} — ${m.especialidad}</option>`).join("")}
+                </select>
+            </label>
+
+            <button id="btnSemana" type="button">Ver semana actual</button>
+        </div>
+    
+        <div id="doctorCard" class="doctor-card">
+            <p class="doctor-empty">Seleccioná un profesional para ver su información.</p>
+        </div>
+
+        <div id="panelSemana" class="week"></div>
+
+        <div class="row">
+            <button id="btnReservar" type="button" disabled>Reservar turno</button>
+        </div>
+    </section>
+  `;
+
+    document.getElementById("medicoSelect").addEventListener("change", (e) => {
+        medicoSeleccionadoId = Number(e.target.value) || null;
+        limpiarSeleccion();
+        renderDoctorCard();
+        renderSemana();
+        actualizarBotonReservar();
+    });
+
+    document.getElementById("btnSemana").addEventListener("click", () => {
+        limpiarSeleccion();
+        renderSemana();
+        actualizarBotonReservar();
+    });
+
+    document.getElementById("btnReservar").addEventListener("click", () => {
+        reservarTurno();
+    });
+
+    // Listener una sola vez 
+
+    document.getElementById("panelSemana").addEventListener("click", onClickSlot);
+    
+    listaTurnos.addEventListener("click", (e) => {
+        const del = e.target.closest("button[data-del]");
+        const ics = e.target.closest("button[data-ics]");
+
+        if (del) cancelarTurno(del.dataset.del);
+        if (ics) descargarICS(ics.dataset.ics);
+    });
+}
+
+
+function renderSemana() {
+    const panel = document.getElementById("panelSemana");
+    panel.innerHTML = "";
+
+    if (!medicoSeleccionadoId) {
+        panel.innerHTML = "<p>Por favor, seleccione un profesional para ver su disponibilidad.</p>";
         return;
     }
 
-    // Generamos HTML dinamico desde el array de objetos
-    divListaTurnos.innerHTML = turnosReservados.map((t) => {
+    const hoy = new Date();
+    const lunes = obtenerLunes(hoy);
+
+    const dias = Array.from({ length: 5 }, (_, i) => sumarDias(lunes, i));
+    const slots = generarSlots(config.inicio, config.fin, config.duracion_turno);
+
+    panel.innerHTML = dias.map((d) => {
+        const iso = toISO(d);
+        const titulo = tituloDia(d);
+
+        const botones = slots.map((hora) => {
+            const ocupado = estaOcupado(medicoSeleccionadoId, iso, hora);
+            const selected = (fechaSeleccionada === iso && horaSeleccionada === hora);
+            const cls = `slot ${ocupado ? "ocupado" : ""} ${selected ? "seleccionado" : ""}`.trim();
+
+            return `
+                <button 
+                    type="button" 
+                    class="${cls}" 
+                    data-fecha="${iso}" 
+                    data-hora="${hora}" 
+                    ${ocupado ? "disabled" : ""}
+                >
+                    ${hora}
+                </button>
+            `;
+        }).join("");
         return `
-            <article class="turno">
-                <h3>${t.medico}</h3>
-                <p><strong>Paciente:</strong> ${t.paciente}</p>
-                <p><strong>Horario:</strong> ${t.horario}</p>
-                <button type="button" data-id="${t.id}">Eliminar turno</button>
-            </article>`;
+            <div class="daycol">
+                <div class="daytitle">${titulo}</div>
+                <div class="slots">${botones}</div>
+            </div>
+        `;
     }).join("");
 }
+function renderDoctorCard() {
+    const card = document.getElementById("doctorCard");
+    if (!card) return;
 
+    if (!medicoSeleccionadoId) {
+    card.innerHTML = `<p class="doctor-empty">Seleccioná un profesional para ver su información.</p>`;
+    return;
+    }
 
-function mostrarMensaje(texto, esError = false) {
-    pMensaje.textContent = texto;
-    pMensaje.classList.toggle("error", esError);
+    const m = medicos.find(x => x.id === medicoSeleccionadoId);
+    if (!m) {
+    card.innerHTML = `<p class="doctor-empty">No se encontró información del profesional.</p>`;
+    return;
+    }
 
-    // Ocultar mensaje después de 3 segundos
-    clearTimeout(mostrarMensaje._t);
-    mostrarMensaje._t = setTimeout(() => {
-        pMensaje.textContent = "";
-        pMensaje.classList.remove("error");
-    }, 3000);
+    card.innerHTML = `
+    <div class="doctor-row">
+        <img class="doctor-img" src="${m.foto}" alt="${m.nombre}">
+        <div class="doctor-info">
+            <h3 class="doctor-name">${m.nombre}</h3>
+            <p class="doctor-spec">${m.especialidad}</p>
+            <p class="doctor-bio">${m.biografia || ""}</p>
+        </div>
+    </div>
+  `;
 }
 
-function guardarTurnosEnStorage(turnos) {
-    localStorage.setItem(storage_Key, JSON.stringify(turnos));
+
+function onClickSlot(e) {
+    const btn = e.target.closest("button[data-fecha][data-hora]");
+    if (!btn) return;
+
+    fechaSeleccionada = btn.dataset.fecha;
+    horaSeleccionada = btn.dataset.hora;
+
+    renderSemana();
+    actualizarBotonReservar();
+
+    Toastify({
+        text: `Seleccionado: ${fechaSeleccionada} a las ${horaSeleccionada}`,
+        duration: 1500,
+        gravity: "top",
+        position: "right",
+    }).showToast();
+}
+    
+function actualizarBotonReservar() {
+    const btn = document.getElementById("btnReservar");
+    if (!btn) return;
+    btn.disabled = !(medicoSeleccionadoId && fechaSeleccionada && horaSeleccionada);
 }
 
-function cargarTurnosDesdeStorage() {
-    const data = localStorage.getItem(storage_Key);
+function limpiarSeleccion() {
+    fechaSeleccionada = null;
+    horaSeleccionada = null;
+}
+
+// ===== Reserva =====
+
+function reservarTurno() {
+    const paciente = document.getElementById("paciente").value.trim();
+
+    if (!paciente) {
+        Swal.fire("Faltan datos", "Por favor, ingrese su nombre y apellido.", "error");
+        return;
+    }
+
+    if (!medicoSeleccionadoId || !fechaSeleccionada || !horaSeleccionada) {
+        Swal.fire("Faltan datos", "Por favor, seleccione un profesional, fecha y hora.", "error");
+        return;
+    }
+
+    const medico = medicos.find(m => m.id === medicoSeleccionadoId);
+
+    Swal.fire({
+        title: "Confirmar turno",
+        html: `
+            <p><strong>Paciente:</strong> ${paciente}</p>
+            <p><strong>Profesional:</strong> ${medico.nombre} - ${medico.especialidad}</p>
+            <p><strong>Fecha y Hora:</strong> ${fechaSeleccionada} a las ${horaSeleccionada}</p>
+        `,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Confirmar",
+        cancelButtonText: "Cancelar",
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        if (estaOcupado(medicoSeleccionadoId, fechaSeleccionada, horaSeleccionada)) {
+            Swal.fire("Turno no disponible", "El turno seleccionado ya fue reservado por otro paciente.", "error");
+            renderSemana();
+            return;
+        }
+
+        const turno = {
+            id: crearId(),
+            paciente,
+            medicoId: medicoSeleccionadoId,
+            medico: medico.nombre,
+            especialidad: medico.especialidad,
+            fecha: fechaSeleccionada,
+            hora: horaSeleccionada
+        };
+
+        turnosPaciente.push(turno);
+        guardarTurnosPaciente(turnosPaciente);
+
+        Toastify({
+            text: "Turno reservado con éxito ✅",
+            duration: 2200,
+            gravity: "top",
+            position: "right",
+        }).showToast();
+
+        limpiarSeleccion();
+        renderSemana();
+        renderTurnosPaciente();
+        actualizarBotonReservar();
+    });
+}
+
+    // ===== Turnos Paciente =====
+
+function renderTurnosPaciente() {
+    if (turnosPaciente.length === 0) {
+        listaTurnos.innerHTML = "<p>No hay turnos reservados.</p>";
+        return;
+    }
+
+    const ordenados = [...turnosPaciente].sort((a, b) =>
+        `${a.fecha} ${a.hora}`.localeCompare(`${b.fecha} ${b.hora}`)
+    );
+
+    listaTurnos.innerHTML = ordenados.map(t => `
+        <div class="turno">
+            <div><strong>${t.paciente}</strong></div>
+            <div>${t.medico} — ${t.especialidad}</div>
+            <div><strong>Fecha:</strong> ${t.fecha} <strong>Hora:</strong> ${t.hora}</div>
+
+            <div class="acciones">
+                <button type="button" class="btn-danger" data-del="${t.id}">Cancelar</button>
+                <button type="button" data-ics="${t.id}">Agregar al calendario (.ics)</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function cancelarTurno(id) {
+    Swal.fire({
+        title: "Cancelar turno",
+        text: "¿Está seguro que desea cancelar este turno?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, cancelar",
+        cancelButtonText: "Volver",
+    }).then((r) => {
+        if (!r.isConfirmed) return;
+
+        turnosPaciente = turnosPaciente.filter(t => t.id !== id);
+        guardarTurnosPaciente(turnosPaciente);
+
+        Toastify({
+            text: "Turno cancelado 🗑️",
+            duration: 1800,
+            gravity: "top",
+            position: "right",
+        }).showToast();
+
+        renderSemana();
+        renderTurnosPaciente();
+        actualizarBotonReservar();
+    });
+}
+
+// ===== Disponibilidad (localStorage) =====
+        
+function estaOcupado(medicoId, fechaISO, hora) {
+    return turnosPaciente.some(t =>
+        t.medicoId === medicoId && t.fecha === fechaISO && t.hora === hora
+    );
+}
+
+// ===== Utilidades =====    
+
+function generarSlots(inicio, fin, pasoMin) {
+    const toMin = (hhmm) => {
+        const [hh, mm] = hhmm.split(":").map(Number);
+        return hh * 60 + mm;
+    };
+
+    const toHHMM = (min) => {
+        const hh = String(Math.floor(min / 60)).padStart(2, "0");
+        const mm = String(min % 60).padStart(2, "0");
+        return `${hh}:${mm}`;
+    };
+
+    const slots = [];
+    for (let t = toMin(inicio); t <= toMin(fin); t += pasoMin) {
+        slots.push(toHHMM(t));
+    }
+    return slots;
+}
+
+function obtenerLunes(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = (day === 0 ? -6 : 1) - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
+function sumarDias(date, n) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + n);
+    return d;
+}
+
+function toISO(date) {
+    return new Date(date).toISOString().slice(0, 10);
+}
+
+function tituloDia(date) {
+    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const d = new Date(date);
+    return `${dias[d.getDay()]} (${toISO(d)})`;
+}
+
+function guardarTurnosPaciente(turnos) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(turnos));
+}
+
+function cargarTurnosPaciente() {
+    const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
 }
 
 function crearId() {
     // Genera un ID único simple basado en la fecha y hora actual
     return (crypto.randomUUID && crypto.randomUUID()) || String(Date.now());
+}
+
+// ===== Exportar .ICS =====
+
+function descargarICS(turnoId) {
+    const turno = turnosPaciente.find(t => t.id === turnoId);
+    if (!turno) return;
+
+    const dtStart = toICSDateTime(turno.fecha, turno.hora);
+    const dtEnd = toICSDateTimeFin(turno.fecha, turno.hora, config.duracion_turno);
+
+    const ics =
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mediturn Pro//ES
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:${turno.id}@mediturnpro
+DTSTAMP:${icsNow()}
+DTSTART:${dtStart}
+DTEND:${dtEnd}
+SUMMARY:Turno con ${turno.medico} (${turno.especialidad})
+DESCRIPTION:Paciente: ${turno.paciente}\\nProfesional: ${turno.medico} - ${turno.especialidad}
+END:VEVENT
+END:VCALENDAR`;
+
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `turno_${turno.fecha}_${turno.hora.replace(":", "")}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+
+    Toastify({
+        text: "Archivo .ics descargado 📅",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+    }).showToast();
+}
+
+function icsNow() {
+    const d = new Date();
+    return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+}
+
+function toICSDateTime(fechaISO, horaHHMM) {
+    const [y, m, d] = fechaISO.split("-").map(Number);
+    const [hh, min] = horaHHMM.split(":").map(Number);
+    const dt = new Date(y, m - 1, d, hh, min, 0);
+    return toICSLocal (dt);
+}
+
+    
+function toICSDateTimeFin(fechaISO, horaHHMM, durMin) {
+    const [y, m, d] = fechaISO.split("-").map(Number);
+    const [hh, min] = horaHHMM.split(":").map(Number);
+    const dt = new Date(y, m - 1, d, hh, min, 0);
+    dt.setMinutes (dt.getMinutes() + durMin);
+    return toICSLocal(dt);
+}
+
+function toICSLocal(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
 }

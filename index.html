@@ -5,69 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mediturn - Sistema de Turnos 🩺</title>
     <link rel="stylesheet" href="./css/style.css">
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
     <main class="container">
         <header class="encabezado">
-            <h1>Mediturn <span>🩺</span></h1>
-            <p class="subtitulo">Sistema básico de gestión de turnos médicos</p>
+            <h1>Mediturn <span aria-hidden="true">🩺</span></h1>
+            <p class="subtitulo">Reserva turnos médicos de forma rápida y sencilla.</p>
         </header>
-        <section class="bloque">
-            <span class="badge">Descripción</span>
+
+        <!-- Descripción corta -->
+        <section class="card bloque">
+            <span class="badge">Información</span>
             <p>
-                Mediturn permite reservar turnos médicos seleccionando un profesional y un horario disponible.
-                Las reservas se registran y se muestran en pantalla, quedando guardadas para próximas visitas.
+                Selecciona un profesional, elegí un horario disponible y confirmá tu turno. ¡Es así de fácil!
+                Tus turnos quedan guardados para próximas visitas.
             </p>
         </section>
-
-        <!-- ENTRADA (Formulario) -->
-        <section class="bloque">
-            <span class="badge">Reservar Turno</span>
-            
-            <form id="formTurno" class="form">
-                <label>Paciente
-                    <input 
-                        type="text" 
-                        id="paciente" 
-                        placeholder="Ej: Juan Pérez" 
-                        autocomplete="name"
-                        required
-                    />   
-                </label>
-
-                <label>Profesional
-                    <select id="medico" required>
-                        <!-- JS carga opciones -->
-                    </select>
-                </label>
-
-                <label>Fecha y Hora
-                    <select id="horario" required>
-                        <!-- JS carga opciones -->
-                    </select>
-                </label>
-
-                <button type="submit">Reservar</button>
-            </form>
-            <!-- SALIDA (Mensajes) -->
-            <p id="mensaje" class="mensaje" aria-live="polite"></p>
-        </section>
-            
-        <!-- SALIDA (Listado) -->
-        <section class="bloque">
+        <!-- APP: JS renderiza contenido dinámico -->
+        <section id="app"></section>
+        <!-- Mis turnos: JS renderiza -->
+        <section class="card">
             <span class="badge">Mis turnos</span>
-            <div id="listaTurnos" class="lista-turnos"> 
-               <!-- JS renderiza tarjetas acá --> 
-            </div>
+            <div id="listaTurnos" class="lista-turnos"></div>
         </section>
-        
         <footer>
-            Mediturn - Sistema de turnos 🩺 - 2025
-            <br>
-            mlav-prog
+            <p>&copy; 2026 Mediturn. Todos los derechos reservados.</p>
+            <p>mlav-prog</p>
         </footer>
     </main>
-
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Toastify -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- Tu JS -->
     <script src="./js/main.js"></script>
 </body>
 </html>

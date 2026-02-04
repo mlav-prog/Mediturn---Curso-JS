@@ -4,49 +4,55 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg: #E8F1F8;
+  --card: #ffffff;
+  --text: #1a4e77;
+  --muted: #5e6a71;
+  --border: rgba(26,78,119, 0.14);
+  --shadow: 0 10px 30px rgba(0,0,0,0.10);
+
+  --primary: #1a4e77;
+  --success: #2bae66;
+  --danger: #b00020;
+  --soft: #f7fbff;
+}
+
 body {
-  font-family: system-ui, sans-serif;
-  background: #E8F1F8;
-  color: #1a4e77;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   display: flex;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 40px 18px;
 }
 
+/* Contenedor principal */
 .container {
-  background: #ffffff;
-  max-width: 720px;
   width: 100%;
-  padding: 24px 28px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-  border: 1px solid rgba(0,0,0,0.05);
+  max-width: 980px;
 }
 
-h1 {
+/*titulo principal */
+.encabezado{
+  margin-bottom: 18px;
+}
+.encabezado h1 {
   font-size: 2rem;
-  margin-bottom: 8px;
-  color: #1a4e77;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  letter-spacing: 0.2px;
 }
-
 .subtitulo {
-  font-size: 0.95rem;
-  color: #5e6a71;
-  margin-bottom: 20px;
+  margin-top: 6px;
+  color: var(--muted);
+  margin-top: 6px;
 }
 
-.bloque {
-  margin-bottom: 18px;
-  line-height: 1.5;
-  font-size: 0.98rem;
-}
-
-.badge {
+.badge{
   display: inline-block;
-  background: #2bae66;
+  background: var(--success);
   color: #ffffff;
   padding: 4px 10px;
   border-radius: 999px;
@@ -55,118 +61,359 @@ h1 {
   margin-bottom: 10px;
 }
 
-ul {
-  margin-left: 20px;
-  margin-top: 8px;
-  line-height: 1.6;
-}
-code {
-  background: #cce4fe;
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  color: #1a4e77;
-}
-footer {
-  margin-top: 18px;
-  font-size: 0.8rem;
-  color: #5e6a71;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  padding-top: 10px;
-}
-.form {
-  margin-top: 10px;
-  display: grid;
-  gap: 12px;
-}
-.form label {
-  display: grid;
-  gap: 6px;
-  font-size: 0.95rem;
-  color: #1a4e77;
-}
-.form input,
-.form select {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(26, 78, 119, 0.25);
-  background:#ffffff;
-  color:#1a4e77;
-  outline: none;
-}
+/* =========================
+   TARJETAS / BLOQUES
+   ========================= */
+   .card {
+      background: var(--card);
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px 18px;
+      margin-bottom: 16px;
+   }
+   .bloque {
+      margin-bottom: 16px;
+      line-height: 1.55;
+      color: var(--text);
+   }
+   .grid {
+      display: grid;
+      gap: 14px;
+   }
+   .row {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      flex-wrap: wrap;
+   }
 
-.form input:focus,
-.form select:focus {
-  border-color: #1a4e77;
-  box-shadow: 0 0 0 3px rgba(26, 78, 119, 0.15);
-}
+   /* Texto pequeño / secundario */
+   code {
+      background: #cce4fe;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--primary);
+   }
 
-.form button {
-  padding: 10px 12px;
-  border: none;
-  border-radius: 10px;
-  background: #2bae66;
-  color: #ffffff;
-  font-weight: 600;
-  cursor: pointer;
-}
+/* =========================
+   FORMULARIOS
+   ========================= */
 
-.form button:hover {
-  filter: brightness(0.95);
-}
+   label {
+      display: grid;
+      gap: 6px;
+      font-size: 0.95rem;
+      color: var(--text); 
+   }
+    input, select {
+      width: 240px;
+      max-width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(26, 78, 119, 0.22);
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 78, 119, 0.15);
+    }
 
-.mensaje {
-  margin-top: 10px;
-  font-size: 0.95rem;
-  color: #2bae66;
-  min-height: 1.2rem;
-}
+    ::placeholder {
+      color: rgba(94,106,113, 0.85);
+    }
 
-.mensaje.error {
-  color: #b00020;
-}
+/* =========================
+   BOTONES
+   ========================= */
 
-.lista-turnos {
-  display: grid;
-  gap: 12px;
-  margin-top: 10px;
-}
+   button {
+      padding: 10px 12px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 0.2s ease, transform .06s ease;
+   }
+    button:hover {
+        filter: brightness(0.95);
+    }
+    button:active {
+        transform: translateY(1px);
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      filter: none;
+      transform: none;
+    }
 
-.turno {
-  border: 1px solid rgba(26, 78, 119, 0.15);
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: #f7fbff;
-}
+    /*boton principal */
+    #btnReservar {
+      background: var(--success);
+    }
+    #btnReservar:hover {
+      filter: brightness(0.96);
+    }
+    /*boton secundario*/
+    #btnSemana {
+      background: #0f6aa6;
+    }
+    /*boton cancelar*/
+    .btn-cancelar {
+      background: var(--danger);
+    }
+    .btn-cancelar:hover {
+      filter: brightness(0.95);
+    }
 
-.turno h3 {
-  font-size: 1.05rem; 
-  margin-bottom: 6px;
-  color:#5e6a71;
-}
+/* =========================
+   MENSAJES / AVISOS
+   ========================= */
 
-.turno p {
-  font-size: 0.95rem;
-  margin-bottom: 6px;
-  color: #5e6a71;
-}
+  .mensaje {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: var(--success);
+      min-height: 1.2rem;  
+  }
+  .mensaje.error {
+      color: var(--danger);
+  }
+   
 
-.turno p strong {
-  color: #1a4e77;
-}
+/* =========================
+   CALENDARIO (Semana / Slots)
+   ========================= */
 
-.turno button {
-  margin-top: 8px;
-  padding: 8px 10px;
-  border: none;
-  border-radius:10px;
-  background: #1a4e77;
-  color: #ffffff;
-  cursor: pointer;
-  font-weight: 600;
-}
+   /* Contenedor general del calendario */
 
-.turno button:hover {
-  filter: brightness(0.95);
-}
+   .week {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    /* columna por dia */
+    .daycol {
+      background: #f7fbff;
+      border: 1px solid rgba(26, 78, 119, 0.14);
+      border-radius: 14px;
+      padding: 10px;
+      min-height: 140px;
+    }
+
+    /* Titulo del dia */
+    .daytitle {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: #1a4e77;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(26, 78, 119, 0.14);
+    }
+
+    /* Grid de botones de horas dentro del dia */
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    /* Boton de hora */
+    .slot {
+      width: 100%;
+      border: 1px solid rgba(26, 78, 119, 0.22);
+      background: #ffffff;
+      color: #1a4e77;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-weight: 650;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: transform 0.06s ease, filter 0.2s ease, box-shadow 0.2s ease;
+    }
+    .slot:hover {
+      filter: brightness(0.98);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+      transform: translateY(-1px);
+    }
+    .slot:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    /* Estado: ocupado */
+    .slot.ocupado,
+    .slot:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: #eef3f7;
+      border-color: rgba(26, 78, 119, 0.15);
+      text-decoration: line-through;
+    }
+
+    /* Estado: seleccionado */
+    .slot.seleccionado {
+      background: #2bae66;
+      border-color: #2bae66;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(43, 174, 102, 0.25);
+    }
+
+    /* Mejoras para mensajes dentro del panel */
+    .week p {
+      margin: 0px;
+      padding: 10px 12px;
+      background: #d6eaf5;
+      border: 1px dashed rgba(26, 78, 119, 0.45);
+      border-radius: 12px;
+      color: #1a4e77;
+      font-size: 0.92rem;
+    }
+
+/* =========================
+   LISTA DE TURNOS RESERVADOS
+   ========================= */
+
+   .lista-turnos {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+   }
+
+   .turno {
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+   }
+
+   .turno > div {
+      margin-bottom: 6px;
+      color: var(--text);
+   }
+   .acciones{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+   }
+
+   /* Botones de acciones dentro del turno */
+   .acciones button {
+      padding: 9px 10px;
+      border-radius:12px;
+      font-weight: 750;
+   }
+
+/* =========================
+   FICHA DEL MÉDICO
+   ========================= */
+  .doctor-card{
+    background: #ffffff;
+    border: 1px solid rgba(26, 78, 119, 0.14);
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .doctor-empty{
+    color: #5e6a71;
+    font-size: 0.95rem;
+  }
+
+  .doctor-row{
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .doctor-img{
+    width: 92px;
+    height: 120px;
+    border-radius: 14px;
+    object-fit: cover;
+    object-position: top center;
+    border: 1px solid rgba(26, 78, 119, 0.18);
+  }
+
+  .doctor-info{
+    flex: 1;
+    min-width: 0;
+  }
+
+  .doctor-name{
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1a4e77;
+    margin-bottom: 4px;
+  }
+
+  .doctor-spec{
+    font-weight: 700;
+    color: #2bae66;
+    margin-bottom: 8px;
+  }
+
+  .doctor-bio{
+    color: #1a4e77;
+    line-height: 1.45;
+    opacity: 0.95;
+    font-size: 0.95rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+
+/*==========================
+   FOOTER
+   =========================*/
+    footer {
+        margin-top: 18px;
+        font-size: 0.85rem;
+        color: var(--muted);
+        border-top: 1px solid rgba(0,0,0,0.1);
+        padding-top: 12px;
+    }
+
+
+/* =========================
+    RESPONSIVE
+   ========================= */
+
+   /* Tablets: 3 columnas */
+   @media (max-width: 980px) {
+      .week {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    /* Móviles: 1 columna */
+    @media (max-width: 620px) {
+      .week {
+        grid-template-columns: 1fr;
+      }
+      .doctor-row{ 
+        align-items: center; 
+      }
+      .doctor-img{ 
+        width: 78px; height: 78px; 
+      }
+    }
+
+
+    .slots {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .slot {
+      font-size: 0.8rem;
+      padding: 8px;
+    }

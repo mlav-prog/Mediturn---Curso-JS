@@ -1,0 +1,55 @@
+{
+  "config": {
+    "inicio": "08:00",
+    "fin": "17:00",
+    "duracion_turno": 30,
+    "diasHabiles": ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"]
+  },
+  "medicos": [
+    { 
+        "id": 1, 
+        "nombre": "Dr. Pérez", 
+        "especialidad": "Clínico",
+        "foto": "./assets/medicos/perez.jpg",
+        "biografia":  "El Dr. Pérez es un médico clínico con más de 15 años de experiencia en el cuidado de la salud integral de sus pacientes. Graduado de la Universidad Nacional, ha trabajado en diversos hospitales y clínicas, especializándose en medicina preventiva y manejo de enfermedades crónicas. Su enfoque se centra en brindar una atención personalizada y humanizada, promoviendo hábitos saludables para mejorar la calidad de vida de sus pacientes."
+
+    },
+    { 
+        "id": 2, 
+        "nombre": "Dra. Johnson", 
+        "especialidad": "Pediatra",
+        "foto": "./assets/medicos/johnson.jpg",
+        "biografia":  "La Dra. Johnson es una pediatra dedicada con más de 10 años de experiencia en el cuidado de la salud infantil. Egresada de la Universidad de Buenos Aires, ha trabajado en hospitales infantiles y clínicas especializadas, enfocándose en el desarrollo integral de los niños desde el nacimiento hasta la adolescencia. Su pasión por la pediatría se refleja en su compromiso por ofrecer un ambiente seguro y acogedor para sus pequeños pacientes y sus familias."
+    },
+    { 
+        "id": 3, 
+        "nombre": "Dr. Lee", 
+        "especialidad": "Cardiólogo",
+        "foto": "./assets/medicos/lee.jpg",
+        "biografia":  "El Dr. Lee es un cardiólogo altamente calificado con más de 20 años de experiencia en el diagnóstico y tratamiento de enfermedades cardiovasculares. Graduado de la Universidad de Harvard, ha trabajado en prestigiosos centros médicos y ha participado en investigaciones innovadoras en el campo de la cardiología. Su enfoque se centra en la prevención, el tratamiento personalizado y la educación del paciente para promover un corazón saludable y una vida activa."
+         
+    },
+    { 
+        "id": 4, 
+        "nombre": "Dra. Brown", 
+        "especialidad": "Dermatóloga",
+        "foto": "./assets/medicos/brown.jpg",
+        "biografia":  "La Dra. Brown es una dermatóloga experta con más de 12 años de experiencia en el cuidado de la piel. Egresada de la Universidad de California, ha trabajado en clínicas especializadas y hospitales, enfocándose en el tratamiento de diversas afecciones dermatológicas, desde acné hasta enfermedades autoinmunes de la piel. Su enfoque integral combina tratamientos médicos avanzados con recomendaciones de cuidado personal para ayudar a sus pacientes a mantener una piel saludable y radiante."
+    },
+    { 
+        "id": 5, 
+        "nombre": "Dr. Fernández", 
+        "especialidad": "Traumatólogo",
+        "foto": "./assets/medicos/fernandez.jpg",
+        "biografia":  "El Dr. Fernández es un traumatólogo con más de 18 años de experiencia en el tratamiento de lesiones musculoesqueléticas. Graduado de la Universidad de Salamanca, ha trabajado en hospitales y clínicas especializadas, enfocándose en la rehabilitación y recuperación de pacientes con fracturas, lesiones deportivas y enfermedades articulares. Su enfoque se basa en la atención personalizada y el uso de técnicas avanzadas para garantizar una recuperación óptima y mejorar la calidad de vida de sus pacientes." 
+    },
+    { 
+        "id": 6, 
+        "nombre": "Dra. Alvarez", 
+        "especialidad": "Ginecóloga",
+        "foto": "./assets/medicos/alvarez.jpg",
+        "biografia":  "La Dra. Alvarez es una ginecóloga con más de 14 años de experiencia en la salud femenina. Egresada de la Universidad de Buenos Aires, ha trabajado en clínicas y hospitales, especializándose en el cuidado integral de la mujer, desde la adolescencia hasta la menopausia. Su enfoque se centra en brindar una atención personalizada y empática, promoviendo la salud reproductiva y el bienestar general de sus pacientes a través de educación y prevención."
+    } 
+  ]
+}
+
