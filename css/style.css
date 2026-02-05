@@ -200,6 +200,26 @@ body {
       margin-top: 14px;
     }
 
+    .week-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .week-controls button {
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(26, 78, 119, 0.25);
+      background: #ffffff;
+      color: #1a4e77;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .week-controls button:hover {
+      background: #eef5fb;
+    }
+
     /* columna por dia */
     .daycol {
       background: #f7fbff;

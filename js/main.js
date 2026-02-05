@@ -1,12 +1,13 @@
 const STORAGE_KEY = "turnosPaciente";
+const { DateTime } = luxon;
 
 const app = document.getElementById("app");
-const listaTurnos = document.getElementById("listaTurnos");
+let listaTurnos = null;
 
 let config = null;
 let medicos = [];
 let turnosPaciente = cargarTurnosPaciente();
-
+let offsetSemana = 0;
 let medicoSeleccionadoId = null;
 let fechaSeleccionada = null;
 let horaSeleccionada = null;
@@ -53,7 +54,11 @@ function renderUI() {
                 </select>
             </label>
 
-            <button id="btnSemana" type="button">Ver semana actual</button>
+            <div class="week-controls">
+                <button id="btnPrev" type="button">« Semana Anterior</button>
+                <button id="btnSemana" type="button">Semana Actual</button>
+                <button id="btnNext" type="button">Semana Siguiente »</button>
+            </div> 
         </div>
     
         <div id="doctorCard" class="doctor-card">
@@ -66,7 +71,14 @@ function renderUI() {
             <button id="btnReservar" type="button" disabled>Reservar turno</button>
         </div>
     </section>
+
+    <section class="card">
+        <h2>Mis Turnos</h2>
+        <div id="listaTurnos" class="lista-turnos"></div>
+    </section>
   `;
+  
+    listaTurnos = document.getElementById("listaTurnos");
 
     document.getElementById("medicoSelect").addEventListener("change", (e) => {
         medicoSeleccionadoId = Number(e.target.value) || null;
@@ -75,11 +87,47 @@ function renderUI() {
         renderSemana();
         actualizarBotonReservar();
     });
-
-    document.getElementById("btnSemana").addEventListener("click", () => {
+    // Semana Anterior
+    document.getElementById("btnPrev").addEventListener("click", () => {
+        offsetSemana-= 1;
         limpiarSeleccion();
         renderSemana();
         actualizarBotonReservar();
+
+        Toastify({
+            text: "Mostrando semana anterior ⬅️",
+            duration: 1500,
+            gravity: "top",
+            position: "right",
+        }).showToast();
+    });
+    // Semana Actual
+    document.getElementById("btnSemana").addEventListener("click", () => {
+        offsetSemana = 0;
+        limpiarSeleccion();
+        renderSemana();
+        actualizarBotonReservar();
+
+        Toastify({
+            text: "Mostrando semana actual 📅",
+            duration: 1500,
+            gravity: "top",
+            position: "right",
+        }).showToast();
+    });
+    // Semana Siguiente
+    document.getElementById("btnNext").addEventListener("click", () => {
+        offsetSemana+= 1;
+        limpiarSeleccion();
+        renderSemana();
+        actualizarBotonReservar();
+
+        Toastify({
+            text: "Mostrando semana siguiente ➡️",
+            duration: 1500,
+            gravity: "top",
+            position: "right",
+        }).showToast();
     });
 
     document.getElementById("btnReservar").addEventListener("click", () => {
@@ -109,12 +157,15 @@ function renderSemana() {
         return;
     }
 
-    const hoy = new Date();
-    const lunes = obtenerLunes(hoy);
+    const base = DateTime.local().startOf('week').plus({ weeks: offsetSemana });
+    const dias = Array.from({ length: 5 }, (_, i) => base.plus({ days: i }));
 
-    const dias = Array.from({ length: 5 }, (_, i) => sumarDias(lunes, i));
-    const slots = generarSlots(config.inicio, config.fin, config.duracion_turno);
-
+    const slots = generarSlots(
+        config.inicio,
+        config.fin,
+        config.duracion_turno
+    );
+    
     panel.innerHTML = dias.map((d) => {
         const iso = toISO(d);
         const titulo = tituloDia(d);
@@ -362,14 +413,12 @@ function sumarDias(date, n) {
     return d;
 }
 
-function toISO(date) {
-    return new Date(date).toISOString().slice(0, 10);
+function toISO(dt) {
+    return dt.toISODate();
 }
 
-function tituloDia(date) {
-    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-    const d = new Date(date);
-    return `${dias[d.getDay()]} (${toISO(d)})`;
+function tituloDia(dt) {
+    return dt.setLocale('es').toFormat('cccc dd/MM');
 }
 
 function guardarTurnosPaciente(turnos) {
